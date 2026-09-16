@@ -1,0 +1,6 @@
+@baseUrl = http://localhost:3000
+
+##
+GET {{baseUrl}}/api/v1/pizzas
+
+
