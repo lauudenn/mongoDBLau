@@ -41,7 +41,8 @@ app.put("/api/v1/pizzas/:id", async (req, res) =>
 app.delete("/api/v1/pizzas/:id", async (req, res) => { 
     const id = req.params.id; 
     await EliminarPizzasAsync(id); 
-    return res.status(200).json({ mensaje: "Pizza eliminada" }) 
+    const mensaje = { mensaje: "Pizza eliminada" };
+    return res.status(200).json(mensaje) 
 })
 
 //iniciar el servidor

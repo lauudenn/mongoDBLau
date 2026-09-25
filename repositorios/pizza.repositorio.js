@@ -1,42 +1,88 @@
-//esta es la capa donde persisten los datos, en este caso es un arreglo de pizzas
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-let pizzas = [{id: 1, nombre: "Hawaiina", descripcion: "Jamon y pinia"}];
+import { MongoClient, ObjectId } from "mongodb";
+
+// Cadena de conexión y configuración de BD/Colección
+const uri = "mongodb://root:191291@localhost:27017/";
+const client = new MongoClient(uri);
+
+const DB_NAME = "pizzeriadb"; // Reemplaza con el nombre de tu base de datos
+const COLLECTION_NAME = "pizzas";
+
 /**
- * Regresa una lista de las pizza
- * @returns []
+ * Retorna la referencia a la colección de pizzas asegurando la conexión
  */
-export async function obtenerPizzasAsync() {
-    await sleep(2000); 
-    return pizzas
-}
-/**
- * Regresa una pizza por su id
- * @param {*} id 
- */
-export async function obtenerPizzaPorIdAsync(id) {
-    await sleep(1000);
-    const pizza = pizzas.find(x => x.id == id);
-    return pizza
-}
-export async function agregarPizzasAsync(pizza) {
-    await sleep(1000);
-    pizzas.push(pizza);
-    return pizzas.length
-}
-export async function actualizarPizzasAsync(id, pizzaActualizada) {
-    await sleep(1000)
-    const index = pizzas.findIndex(x => x.id == id)
-    if (index == -1)
-    return undefined
-    pizzas[index].nombre = pizza.nombre
-    pizzas[index].descripcion = pizza.descripcion
-    return pizzas[index]
-    return "pizza actualizada"
-}
-export async function EliminarPizzasAsync(id) {
-    await sleep(1000)
-    const index = pizzas.findIndex(x => x.id == id)
-    pizzas.splice(index)
-    return "pizza borrada"
+async function getCollection() {
+    if (!client.topology || !client.topology.isConnected()) {
+        await client.connect();
+    }
+    return client.db(DB_NAME).collection(COLLECTION_NAME);
 }
 
+/**
+ * Regresa una lista de las pizzas
+ * @returns {Promise<Array>}
+ */
+export async function obtenerPizzasAsync() {
+    const collection = await getCollection();
+    const pizzas = await collection.find({}).toArray();
+    return pizzas;
+}
+
+/**
+ * Regresa una pizza por su id o undefined si no existe
+ * @param {string} id 
+ * @returns {Promise<Object|undefined>} 
+ */
+export async function obtenerPizzaPorIdAsync(id) {
+    if (!ObjectId.isValid(id)) return undefined;
+
+    const collection = await getCollection();
+    const pizza = await collection.findOne({ _id: new ObjectId(id) });
+    return pizza || undefined;
+}
+
+/**
+ * Agrega una nueva pizza a la lista 
+ * @param {Object} pizza 
+ * @returns {Promise<string>} Id del elemento insertado
+ */
+export async function agregarPizzasAsync(pizza) {
+    const collection = await getCollection();
+    const resultado = await collection.insertOne(pizza);
+    return resultado.insertedId.toString();
+}
+
+/**
+ * Actualiza una pizza existente 
+ * @param {string} id 
+ * @param {Object} pizza 
+ * @returns {Promise<Object|undefined>}
+ */
+export async function actualizarPizzasAsync(id, pizza) {
+    if (!ObjectId.isValid(id)) return undefined;
+
+    const collection = await getCollection();
+    
+    // Evita modificar el _id internamente si viene dentro del objeto
+    const { _id, ...datosActualizados } = pizza;
+
+    const resultado = await collection.findOneAndUpdate(
+        { _id: new ObjectId(id) },
+        { $set: datosActualizados },
+        { returnDocument: "after" }
+    );
+
+    return resultado || undefined;
+}
+
+/**
+ * Elimina una pizza existente
+ * @param {string} id 
+ * @returns {Promise<boolean>}
+ */
+export async function EliminarPizzasAsync(id) {
+    if (!ObjectId.isValid(id)) return false;
+
+    const collection = await getCollection();
+    const resultado = await collection.deleteOne({ _id: new ObjectId(id) });
+    return resultado.deletedCount > 0;
+}
