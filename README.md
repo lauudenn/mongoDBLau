@@ -26,5 +26,9 @@ La API cuenta con los siguientes endpoints disponibles bajo la ruta base `/api/v
 * Node.js v18+ instalado.
 * Instancia local o contenedor Docker de MongoDB corriendo en `localhost:27017`.
 
+## Ejecucución 
+
+git clone https://github.com/lauudenn/mongoDBLau.git
+cd C:\Users\Usuario\Desktop\mongodb>
    CAPTURA DE PANTALLA 
 ![Pruebas en Postman](img/image.png)
