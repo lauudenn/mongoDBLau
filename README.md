@@ -32,5 +32,5 @@ git clone https://github.com/lauudenn/mongoDBLau.git
 cd C:\Users\Usuario\Desktop\mongodb>
 
 
-   CAPTURA DE PANTALLA 
+CAPTURA DE PANTALLA 
 ![Pruebas en Postman](img/image.png)
