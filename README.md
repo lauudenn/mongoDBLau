@@ -30,5 +30,7 @@ La API cuenta con los siguientes endpoints disponibles bajo la ruta base `/api/v
 
 git clone https://github.com/lauudenn/mongoDBLau.git
 cd C:\Users\Usuario\Desktop\mongodb>
+
+
    CAPTURA DE PANTALLA 
 ![Pruebas en Postman](img/image.png)
